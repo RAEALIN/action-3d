@@ -26,8 +26,8 @@ h1{letter-spacing:5px;margin:0 0 8px;font-size:38px;color:#ffb52e;text-shadow:0 
 </head>
 <body>
 <div id="game"></div>
-<div id="hud"><div id="brand">ACTION 3D</div><div id="mission">BATTLE ZONE · ISLA TROPICAL AMPLIADA · 6 BOTS</div><div id="stats"><span style="color:#ffb52e">SUPERVIVIENTES</span> <span id="alive">6</span><br>ENERGÍA <span id="score">0</span><br><span style="font-size:11px;color:#ffcc79">VIDA <span id="hp">100</span>%</span></div><div id="center">+</div><div id="zone">ZONA SEGURA: <span id="zoneTime">03:00</span></div><div id="mapbox"><canvas id="mini" width="150" height="150"></canvas></div><div id="battlehud"><span class="slot active" id="w1">1 · PULSO</span><span class="slot" id="w2">2 · RÁPIDO</span><span class="slot" id="w3">3 · POTENTE</span><span>BOTIQUÍN [F]: <b id="meds">1</b></span><span>ESCUDO: <b id="shield">0</b></span></div><div id="toast">¡CRISTAL CONSEGUIDO!</div><div id="help">W A S D · MOVERSE &nbsp; ESPACIO · SALTAR<br>SHIFT · CORRER &nbsp; MOUSE · MIRAR<br>1/2/3 · EQUIPO &nbsp; F · CURAR &nbsp; E · VEHÍCULO<br>CLICK · PULSO DE ENERGÍA &nbsp; ESC · LIBERAR</div></div>
-<div id="start"><div class="panel"><h1>ACTION 3D</h1><div style="color:#ffb52e;letter-spacing:4px;font-size:13px;font-weight:900">BATTLE ZONE</div><p>Explora una isla tropical ampliada con nuevos poblados, torres, colinas y zonas alejadas. Sobrevive a los bots rivales y recoge energía en tercera persona.</p><p style="font-size:12px;color:#ffcc79">ISLA AMPLIADA 300 × 300 · ZONAS DE EXPLORACIÓN · TECLADO Y MOUSE</p><button class="btn" id="play">ENTRAR AL JUEGO</button></div></div>
+<div id="hud"><div id="brand">ACTION 3D</div><div id="mission">BATTLE ZONE · ISLA TROPICAL AMPLIADA · 6 BOTS</div><div id="stats"><span style="color:#ffb52e">SUPERVIVIENTES</span> <span id="alive">6</span><br>PUNTOS <span id="score">0</span><br><span style="font-size:11px;color:#ffcc79">VIDA <span id="hp">100</span>%</span></div><div id="center">+</div><div id="zone">ZONA SEGURA: <span id="zoneTime">03:00</span></div><div id="mapbox"><canvas id="mini" width="150" height="150"></canvas></div><div id="battlehud"><span class="slot active" id="w1">1 · PULSO</span><span class="slot" id="w2">2 · RÁPIDO</span><span class="slot" id="w3">3 · POTENTE</span><span>BOTIQUÍN [F]: <b id="meds">1</b></span><span>ESCUDO: <b id="shield">0</b></span></div><div id="toast">¡OBJETO RECOGIDO!</div><div id="help">W A S D · MOVERSE &nbsp; ESPACIO · SALTAR<br>SHIFT · CORRER &nbsp; MOUSE · MIRAR<br>1/2/3 · EQUIPO &nbsp; F · CURAR &nbsp; E · VEHÍCULO<br>CLICK · PULSO DE ENERGÍA &nbsp; ESC · LIBERAR</div></div>
+<div id="start"><div class="panel"><h1>ACTION 3D</h1><div style="color:#ffb52e;letter-spacing:4px;font-size:13px;font-weight:900">BATTLE ZONE</div><p>Explora una isla tropical ampliada con nuevos poblados, torres, colinas y zonas alejadas. Sobrevive a los bots rivales y consigue suministros y sobrevive en tercera persona.</p><p style="font-size:12px;color:#ffcc79">ISLA AMPLIADA 300 × 300 · ZONAS DE EXPLORACIÓN · TECLADO Y MOUSE</p><button class="btn" id="play">ENTRAR AL JUEGO</button></div></div>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"}}</script>
 <script type="module">
 import * as THREE from 'three';
@@ -41,7 +41,17 @@ const ground=new THREE.Mesh(new THREE.PlaneGeometry(300,300),mat(0x8a7954));grou
 const ocean=new THREE.Mesh(new THREE.PlaneGeometry(560,560),mat(0x245b70,.6));ocean.rotation.x=-Math.PI/2;ocean.position.y=-.35;scene.add(ocean);
 const grid=new THREE.GridHelper(300,100,0x78917c,0x71866f);grid.position.y=.015;grid.material.opacity=.12;grid.material.transparent=true;scene.add(grid);
 const solidBoxes=[],solidCircles=[];
-function box(x,y,z,sx,sy,sz,color){const o=new THREE.Mesh(new THREE.BoxGeometry(sx,sy,sz),mat(color));o.position.set(x,y,z);o.castShadow=true;o.receiveShadow=true;scene.add(o);solidBoxes.push({x,z,hx:sx/2,hz:sz/2});return o}
+function box(x,y,z,sx,sy,sz,color){const o=new THREE.Mesh(new THREE.BoxGeometry(sx,sy,sz),mat(color));o.position.set(x,y,z);o.castShadow=true;o.receiveShadow=true;scene.add(o);solidBoxes.push({x,y,z,hx:sx/2,hy:sy/2,hz:sz/2});return o}
+function projectileBlocked(from,to){
+ const distance=from.distanceTo(to),steps=Math.max(1,Math.ceil(distance/.22));
+ for(let i=1;i<=steps;i++){
+  const p=from.clone().lerp(to,i/steps);
+  for(const b of solidBoxes){
+   if(Math.abs(p.x-b.x)<=b.hx&&Math.abs(p.z-b.z)<=b.hz&&p.y>=b.y-b.hy-.12&&p.y<=b.y+b.hy+.12)return true;
+  }
+ }
+ return false;
+}
 function blockedAt(x,z){const r=1.0;for(const b of solidBoxes){const qx=THREE.MathUtils.clamp(x,b.x-b.hx,b.x+b.hx),qz=THREE.MathUtils.clamp(z,b.z-b.hz,b.z+b.hz);if((x-qx)*(x-qx)+(z-qz)*(z-qz)<r*r)return true}for(const b of solidCircles){const dx=x-b.x,dz=z-b.z;if(dx*dx+dz*dz<(r+b.r)*(r+b.r))return true}return false}
 function rock(x,z,s){const o=new THREE.Mesh(new THREE.DodecahedronGeometry(s,1),mat(0x68756e));o.position.set(x,s*.45,z);o.scale.y=.65;o.rotation.set(Math.random(),Math.random(),Math.random());o.castShadow=true;scene.add(o);solidCircles.push({x,z,r:s*1.2})}
 // distant ridges
@@ -90,7 +100,6 @@ for(const x of [-.24,.24]){const leg=new THREE.Mesh(new THREE.CapsuleGeometry(.1
 const ring=new THREE.Mesh(new THREE.TorusGeometry(.53,.035,8,32),trim);ring.rotation.x=Math.PI/2;ring.position.y=.12;player.add(ring);
 player.position.set(0,0,0);
 const zoneRing=new THREE.Mesh(new THREE.TorusGeometry(130,.8,8,160),new THREE.MeshBasicMaterial({color:0x42dfff,transparent:true,opacity:.75}));zoneRing.rotation.x=Math.PI/2;zoneRing.position.y=.35;scene.add(zoneRing);
-const crystals=[];for(let i=0;i<8;i++){const a=i/8*Math.PI*2,r=13+(i%3)*5;const g=new THREE.Group();const gem=new THREE.Mesh(new THREE.OctahedronGeometry(.62),new THREE.MeshStandardMaterial({color:0xffb52e,emissive:0xa84900,emissiveIntensity:2,metalness:.4,roughness:.2}));g.add(gem);const halo=new THREE.Mesh(new THREE.TorusGeometry(.9,.025,8,32),trim);halo.rotation.x=Math.PI/2;g.add(halo);g.position.set(Math.cos(a)*r,1.25,Math.sin(a)*r);scene.add(g);crystals.push(g)}
 // Bots rivales: se persiguen entre sí y al jugador con pulsos de energía de fantasía
 const bots=[],botBolts=[];
 let playerHealth=100;
@@ -131,7 +140,6 @@ if(vehicleMode){buggy.position.set(player.position.x,0,player.position.z);buggy.
 zoneClock-=dt;if(zoneClock<=0){zoneRadius=Math.max(28,zoneRadius-13);zoneClock=45;zoneRing.geometry.dispose();zoneRing.geometry=new THREE.TorusGeometry(zoneRadius,.8,8,160);toast()}document.querySelector('#zoneTime').textContent=Math.floor(zoneClock/60).toString().padStart(2,'0')+':'+Math.floor(zoneClock%60).toString().padStart(2,'0');
 if(Math.hypot(player.position.x,player.position.z)>zoneRadius){playerHealth=Math.max(0,playerHealth-5*dt);document.querySelector('#hp').textContent=Math.floor(playerHealth);if(playerHealth<=0){playerHealth=100;player.position.set(0,0,0);toast()}}
 for(const l of loot){l.g.rotation.y+=dt;if(l.g.visible&&l.g.position.distanceTo(player.position)<2){l.g.visible=false;if(l.type==='med'){medkits++;document.querySelector('#meds').textContent=medkits}else if(l.type==='shield'){shield=Math.min(100,shield+25);document.querySelector('#shield').textContent=shield}else score+=5;document.querySelector('#score').textContent=score;toast()}}
-for(const c of crystals){c.rotation.y+=dt*1.2;c.position.y=1.25+Math.sin(t*2+c.position.x)*.18;if(c.visible&&c.position.distanceTo(player.position)<1.7){c.visible=false;score++;document.querySelector('#score').textContent=score;document.querySelector('#alive').textContent=bots.filter(b=>b.alive).length;toast()}}
 for(let i=0;i<drones.length;i++){const d=drones[i];d.position.y=2.2+Math.sin(t*1.6+i)*.35;d.rotation.y+=dt*.6}
 for(const b of bots){
  if(!b.alive)continue;
@@ -143,10 +151,10 @@ for(const b of bots){
  if(delta.lengthSq()>.01)b.group.rotation.y=Math.atan2(delta.x,delta.z);
  b.fire-=dt;if(dist<42&&b.fire<=0){botFire(b,target);b.fire=1.6+Math.random()*1.1;}
 }
-for(let i=shots.length-1;i>=0;i--){const s=shots[i];s.mesh.position.addScaledVector(s.dir,(s.speed||30)*dt);s.life-=dt;
+for(let i=shots.length-1;i>=0;i--){const s=shots[i];const previous=s.mesh.position.clone();s.mesh.position.addScaledVector(s.dir,(s.speed||30)*dt);s.life-=dt;if(projectileBlocked(previous,s.mesh.position)){s.life=0;}
  for(const b of bots){if(b.alive&&s.mesh.position.distanceTo(b.group.position.clone().add(new THREE.Vector3(0,1,0)))<1.05){hitBotDamage(b,s.damage||25);score++;document.querySelector('#score').textContent=score;toast();s.life=0;break}}
  if(s.life<=0){scene.remove(s.mesh);shots.splice(i,1)}}
-for(let i=botBolts.length-1;i>=0;i--){const s=botBolts[i];s.mesh.position.addScaledVector(s.dir,20*dt);s.life-=dt;
+for(let i=botBolts.length-1;i>=0;i--){const s=botBolts[i];const previous=s.mesh.position.clone();s.mesh.position.addScaledVector(s.dir,20*dt);s.life-=dt;if(projectileBlocked(previous,s.mesh.position))s.life=0;
  if(s.owner.alive&&s.mesh.position.distanceTo(player.position.clone().add(new THREE.Vector3(0,1,0)))<1.05){const absorbed=Math.min(shield,8);shield-=absorbed;document.querySelector("#shield").textContent=shield;playerHealth=Math.max(0,playerHealth-(8-absorbed));document.querySelector('#hp').textContent=playerHealth;s.life=0;if(playerHealth===0){playerHealth=100;document.querySelector('#hp').textContent=playerHealth;player.position.set(0,0,0);toast();}}
  for(const b of bots){if(b!==s.owner&&b.alive&&s.mesh.position.distanceTo(b.group.position.clone().add(new THREE.Vector3(0,1,0)))<1.05){hitBot(b);s.life=0;break}}
  if(s.life<=0){scene.remove(s.mesh);botBolts.splice(i,1)}}
