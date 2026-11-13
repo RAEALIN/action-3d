@@ -152,11 +152,11 @@ for(const b of bots){
  b.fire-=dt;if(dist<42&&b.fire<=0){botFire(b,target);b.fire=1.6+Math.random()*1.1;}
 }
 for(let i=shots.length-1;i>=0;i--){const s=shots[i];const previous=s.mesh.position.clone();s.mesh.position.addScaledVector(s.dir,(s.speed||30)*dt);s.life-=dt;if(projectileBlocked(previous,s.mesh.position)){s.life=0;}
- for(const b of bots){if(b.alive&&s.mesh.position.distanceTo(b.group.position.clone().add(new THREE.Vector3(0,1,0)))<1.05){hitBotDamage(b,s.damage||25);score++;document.querySelector('#score').textContent=score;toast();s.life=0;break}}
+ for(const b of bots){if(s.life>0&&b.alive&&s.mesh.position.distanceTo(b.group.position.clone().add(new THREE.Vector3(0,1,0)))<1.05){hitBotDamage(b,s.damage||25);score++;document.querySelector('#score').textContent=score;toast();s.life=0;break}}
  if(s.life<=0){scene.remove(s.mesh);shots.splice(i,1)}}
 for(let i=botBolts.length-1;i>=0;i--){const s=botBolts[i];const previous=s.mesh.position.clone();s.mesh.position.addScaledVector(s.dir,20*dt);s.life-=dt;if(projectileBlocked(previous,s.mesh.position))s.life=0;
- if(s.owner.alive&&s.mesh.position.distanceTo(player.position.clone().add(new THREE.Vector3(0,1,0)))<1.05){const absorbed=Math.min(shield,8);shield-=absorbed;document.querySelector("#shield").textContent=shield;playerHealth=Math.max(0,playerHealth-(8-absorbed));document.querySelector('#hp').textContent=playerHealth;s.life=0;if(playerHealth===0){playerHealth=100;document.querySelector('#hp').textContent=playerHealth;player.position.set(0,0,0);toast();}}
- for(const b of bots){if(b!==s.owner&&b.alive&&s.mesh.position.distanceTo(b.group.position.clone().add(new THREE.Vector3(0,1,0)))<1.05){hitBot(b);s.life=0;break}}
+ if(s.life>0&&s.owner.alive&&s.mesh.position.distanceTo(player.position.clone().add(new THREE.Vector3(0,1,0)))<1.05){const absorbed=Math.min(shield,8);shield-=absorbed;document.querySelector("#shield").textContent=shield;playerHealth=Math.max(0,playerHealth-(8-absorbed));document.querySelector('#hp').textContent=playerHealth;s.life=0;if(playerHealth===0){playerHealth=100;document.querySelector('#hp').textContent=playerHealth;player.position.set(0,0,0);toast();}}
+ for(const b of bots){if(s.life>0&&b!==s.owner&&b.alive&&s.mesh.position.distanceTo(b.group.position.clone().add(new THREE.Vector3(0,1,0)))<1.05){hitBot(b);s.life=0;break}}
  if(s.life<=0){scene.remove(s.mesh);botBolts.splice(i,1)}}
 
 }
