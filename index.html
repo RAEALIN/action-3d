@@ -20,34 +20,34 @@ h1{letter-spacing:5px;margin:0 0 8px;font-size:38px;color:#ffb52e;text-shadow:0 
 </head>
 <body>
 <div id="game"></div>
-<div id="hud"><div id="brand">ACTION 3D</div><div id="mission">BATTLE ZONE · ISLA TROPICAL · 6 BOTS</div><div id="stats"><span style="color:#ffb52e">SUPERVIVIENTES</span> <span id="alive">6</span><br>ENERGÍA <span id="score">0</span><br><span style="font-size:11px;color:#ffcc79">VIDA <span id="hp">100</span>%</span></div><div id="center">+</div><div id="toast">¡CRISTAL CONSEGUIDO!</div><div id="help">W A S D · MOVERSE &nbsp; ESPACIO · SALTAR<br>SHIFT · CORRER &nbsp; MOUSE · MIRAR<br>CLICK · PULSO DE ENERGÍA &nbsp; ESC · LIBERAR</div></div>
-<div id="start"><div class="panel"><h1>ACTION 3D</h1><div style="color:#ffb52e;letter-spacing:4px;font-size:13px;font-weight:900">BATTLE ZONE</div><p>Explora una isla tropical con casas, colinas y caminos. Sobrevive a los bots rivales y recoge energía en tercera persona.</p><p style="font-size:12px;color:#ffcc79">ISLA 200 × 200 · BOTS RIVALES · TECLADO Y MOUSE</p><button class="btn" id="play">ENTRAR AL JUEGO</button></div></div>
+<div id="hud"><div id="brand">ACTION 3D</div><div id="mission">BATTLE ZONE · ISLA TROPICAL AMPLIADA · 6 BOTS</div><div id="stats"><span style="color:#ffb52e">SUPERVIVIENTES</span> <span id="alive">6</span><br>ENERGÍA <span id="score">0</span><br><span style="font-size:11px;color:#ffcc79">VIDA <span id="hp">100</span>%</span></div><div id="center">+</div><div id="toast">¡CRISTAL CONSEGUIDO!</div><div id="help">W A S D · MOVERSE &nbsp; ESPACIO · SALTAR<br>SHIFT · CORRER &nbsp; MOUSE · MIRAR<br>CLICK · PULSO DE ENERGÍA &nbsp; ESC · LIBERAR</div></div>
+<div id="start"><div class="panel"><h1>ACTION 3D</h1><div style="color:#ffb52e;letter-spacing:4px;font-size:13px;font-weight:900">BATTLE ZONE</div><p>Explora una isla tropical ampliada con nuevos poblados, torres, colinas y zonas alejadas. Sobrevive a los bots rivales y recoge energía en tercera persona.</p><p style="font-size:12px;color:#ffcc79">ISLA AMPLIADA 300 × 300 · ZONAS DE EXPLORACIÓN · TECLADO Y MOUSE</p><button class="btn" id="play">ENTRAR AL JUEGO</button></div></div>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"}}</script>
 <script type="module">
 import * as THREE from 'three';
-const root=document.querySelector('#game'),scene=new THREE.Scene();scene.background=new THREE.Color(0x9b8064);scene.fog=new THREE.Fog(0x9b8064,65,230);
-const camera=new THREE.PerspectiveCamera(65,innerWidth/innerHeight,.1,250);
+const root=document.querySelector('#game'),scene=new THREE.Scene();scene.background=new THREE.Color(0x9b8064);scene.fog=new THREE.Fog(0x9b8064,105,340);
+const camera=new THREE.PerspectiveCamera(65,innerWidth/innerHeight,.1,380);
 const renderer=new THREE.WebGLRenderer({antialias:true});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.15;root.appendChild(renderer.domElement);
 scene.add(new THREE.HemisphereLight(0xd9f3ff,0x465348,2));
-const sun=new THREE.DirectionalLight(0xffd09a,3.2);sun.position.set(-25,35,18);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);sun.shadow.camera.left=-55;sun.shadow.camera.right=55;sun.shadow.camera.top=55;sun.shadow.camera.bottom=-55;scene.add(sun);
+const sun=new THREE.DirectionalLight(0xffd09a,3.2);sun.position.set(-25,35,18);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);sun.shadow.camera.left=-100;sun.shadow.camera.right=100;sun.shadow.camera.top=100;sun.shadow.camera.bottom=-100;scene.add(sun);
 const mat=(c,r=.85,m=0)=>new THREE.MeshStandardMaterial({color:c,roughness:r,metalness:m});
-const ground=new THREE.Mesh(new THREE.PlaneGeometry(200,200),mat(0x8a7954));ground.rotation.x=-Math.PI/2;ground.receiveShadow=true;scene.add(ground);
-const ocean=new THREE.Mesh(new THREE.PlaneGeometry(430,430),mat(0x245b70,.6));ocean.rotation.x=-Math.PI/2;ocean.position.y=-.35;scene.add(ocean);
-const grid=new THREE.GridHelper(200,70,0x78917c,0x71866f);grid.position.y=.015;grid.material.opacity=.12;grid.material.transparent=true;scene.add(grid);
+const ground=new THREE.Mesh(new THREE.PlaneGeometry(300,300),mat(0x8a7954));ground.rotation.x=-Math.PI/2;ground.receiveShadow=true;scene.add(ground);
+const ocean=new THREE.Mesh(new THREE.PlaneGeometry(560,560),mat(0x245b70,.6));ocean.rotation.x=-Math.PI/2;ocean.position.y=-.35;scene.add(ocean);
+const grid=new THREE.GridHelper(300,100,0x78917c,0x71866f);grid.position.y=.015;grid.material.opacity=.12;grid.material.transparent=true;scene.add(grid);
 const solidBoxes=[],solidCircles=[];
 function box(x,y,z,sx,sy,sz,color){const o=new THREE.Mesh(new THREE.BoxGeometry(sx,sy,sz),mat(color));o.position.set(x,y,z);o.castShadow=true;o.receiveShadow=true;scene.add(o);solidBoxes.push({x,z,hx:sx/2,hz:sz/2});return o}
 function blockedAt(x,z){const r=1.0;for(const b of solidBoxes){const qx=THREE.MathUtils.clamp(x,b.x-b.hx,b.x+b.hx),qz=THREE.MathUtils.clamp(z,b.z-b.hz,b.z+b.hz);if((x-qx)*(x-qx)+(z-qz)*(z-qz)<r*r)return true}for(const b of solidCircles){const dx=x-b.x,dz=z-b.z;if(dx*dx+dz*dz<(r+b.r)*(r+b.r))return true}return false}
 function rock(x,z,s){const o=new THREE.Mesh(new THREE.DodecahedronGeometry(s,1),mat(0x68756e));o.position.set(x,s*.45,z);o.scale.y=.65;o.rotation.set(Math.random(),Math.random(),Math.random());o.castShadow=true;scene.add(o);solidCircles.push({x,z,r:s*1.2})}
 // distant ridges
-for(let i=0;i<36;i++){const a=i/36*Math.PI*2,r=148+Math.random()*25,h=12+Math.random()*22;const m=new THREE.Mesh(new THREE.ConeGeometry(10+Math.random()*9,h,5),mat(i%2?0x637d80:0x71888b));m.position.set(Math.cos(a)*r,h/2-1,Math.sin(a)*r);m.rotation.y=Math.random()*2;scene.add(m)}
+for(let i=0;i<48;i++){const a=i/48*Math.PI*2,r=205+Math.random()*28,h=12+Math.random()*22;const m=new THREE.Mesh(new THREE.ConeGeometry(10+Math.random()*9,h,5),mat(i%2?0x637d80:0x71888b));m.position.set(Math.cos(a)*r,h/2-1,Math.sin(a)*r);m.rotation.y=Math.random()*2;scene.add(m)}
 // Zonas de isla tropical inspiradas en mapas battle royale, con relieve y costa
 for(let i=0;i<18;i++){
- const a=i/18*Math.PI*2,rad=73+(i%3)*5,h=7+(i%4)*2;
+ const a=i/18*Math.PI*2,rad=112+(i%3)*6,h=8+(i%4)*2;
  const hill=new THREE.Mesh(new THREE.ConeGeometry(13,h,7),mat(i%2?0x64734e:0x7a8057));
  hill.position.set(Math.cos(a)*rad,h/2-1,Math.sin(a)*rad);hill.rotation.y=a;hill.castShadow=true;scene.add(hill);
  solidCircles.push({x:hill.position.x,z:hill.position.z,r:9});
 }
-for(let i=0;i<65;i++){const x=(Math.random()-.5)*180,z=(Math.random()-.5)*180;if(Math.hypot(x,z)<12)continue;rock(x,z,.6+Math.random()*1.5)}
+for(let i=0;i<115;i++){const x=(Math.random()-.5)*270,z=(Math.random()-.5)*270;if(Math.hypot(x,z)<12)continue;rock(x,z,.6+Math.random()*1.5)}
 // Casas de varios tamaños, con paredes sólidas, techos y puertas abiertas
 function house(x,z,w=10,d=8,color=0xb9a27a){
  box(x,1.8,z-d/2,w,3.6,.45,color);
@@ -63,8 +63,16 @@ house(-42,-34,12,9,0xbca27a);house(-25,-40,9,8,0xd0b88a);
 house(38,-38,13,10,0xb9aa83);house(53,-23,9,8,0xc6a77a);
 house(-48,38,11,9,0xc9b58c);house(35,42,12,9,0xbda47a);
 house(5,-62,10,8,0xd1bd92);house(-5,58,14,10,0xc3a77b);
+house(105,12,14,11,0xc5ad7f);house(120,26,10,9,0xbca27a);house(95,32,9,8,0xd0b88a);
+house(-105,-12,13,10,0xb9aa83);house(-120,-28,10,8,0xc6a77a);house(-92,-36,11,9,0xc9b58c);
+house(18,112,13,10,0xbda47a);house(38,125,10,8,0xd1bd92);
+house(-25,-112,14,10,0xc3a77b);house(-45,-126,10,8,0xbca27a);
+// Nuevas zonas de exploración en los extremos de la isla
+function landmark(x,z,color=0x9a6338){const base=new THREE.Mesh(new THREE.CylinderGeometry(3.2,4.5,1.2,8),mat(0x77715c));base.position.set(x,.6,z);base.castShadow=true;scene.add(base);const tower=new THREE.Mesh(new THREE.CylinderGeometry(1.1,1.5,10,8),mat(color));tower.position.set(x,6,z);tower.castShadow=true;scene.add(tower);const cap=new THREE.Mesh(new THREE.ConeGeometry(2.2,2.5,8),mat(0x554337));cap.position.set(x,12,z);scene.add(cap);solidCircles.push({x,z,r:2.2});}
+landmark(135,-100);landmark(-135,100);landmark(0,145,0x806b48);
+
 // Cobertizos y rocas grandes marcan las colinas y caminos
-for(let i=0;i<14;i++){const x=(Math.random()-.5)*150,z=(Math.random()-.5)*150;if(Math.hypot(x,z)<18)continue;rock(x,z,1.8+Math.random()*2)}
+for(let i=0;i<30;i++){const x=(Math.random()-.5)*270,z=(Math.random()-.5)*270;if(Math.hypot(x,z)<18)continue;rock(x,z,1.8+Math.random()*2)}
 
 // player avatar
 const player=new THREE.Group();scene.add(player);
@@ -103,7 +111,7 @@ function hitBot(bot){bot.health-=25;if(bot.health<=0){bot.alive=false;bot.group.
 function toast(){const t=document.querySelector('#toast');t.style.opacity=1;setTimeout(()=>t.style.opacity=0,850)}
 const clock=new THREE.Clock();
 function animate(){requestAnimationFrame(animate);const dt=Math.min(clock.getDelta(),.04),t=clock.elapsedTime;
-if(started){const forward=new THREE.Vector3(Math.sin(yaw),0,Math.cos(yaw)),right=new THREE.Vector3(forward.z,0,-forward.x);let move=new THREE.Vector3();if(keys.KeyW||keys.ArrowUp)move.add(forward);if(keys.KeyS||keys.ArrowDown)move.sub(forward);if(keys.KeyD||keys.ArrowRight)move.add(right);if(keys.KeyA||keys.ArrowLeft)move.sub(right);if(move.lengthSq())move.normalize();const speed=keys.ShiftLeft?10:6;const dx=move.x*speed*dt,dz=move.z*speed*dt;let nx=THREE.MathUtils.clamp(player.position.x+dx,-95,95),nz=player.position.z;if(!blockedAt(nx,nz))player.position.x=nx;nz=THREE.MathUtils.clamp(player.position.z+dz,-95,95);if(!blockedAt(player.position.x,nz))player.position.z=nz;if(move.lengthSq())player.rotation.y=Math.atan2(move.x,move.z);if(keys.Space&&onGround){vy=8;onGround=false}vy-=19*dt;player.position.y+=vy*dt;if(player.position.y<0){player.position.y=0;vy=0;onGround=true}
+if(started){const forward=new THREE.Vector3(Math.sin(yaw),0,Math.cos(yaw)),right=new THREE.Vector3(forward.z,0,-forward.x);let move=new THREE.Vector3();if(keys.KeyW||keys.ArrowUp)move.add(forward);if(keys.KeyS||keys.ArrowDown)move.sub(forward);if(keys.KeyA||keys.ArrowLeft)move.add(right);if(keys.KeyD||keys.ArrowRight)move.sub(right);if(move.lengthSq())move.normalize();const speed=keys.ShiftLeft?10:6;const dx=move.x*speed*dt,dz=move.z*speed*dt;let nx=THREE.MathUtils.clamp(player.position.x+dx,-95,95),nz=player.position.z;if(!blockedAt(nx,nz))player.position.x=nx;nz=THREE.MathUtils.clamp(player.position.z+dz,-95,95);if(!blockedAt(player.position.x,nz))player.position.z=nz;if(move.lengthSq())player.rotation.y=Math.atan2(move.x,move.z);if(keys.Space&&onGround){vy=8;onGround=false}vy-=19*dt;player.position.y+=vy*dt;if(player.position.y<0){player.position.y=0;vy=0;onGround=true}
 camera.position.set(player.position.x-Math.sin(yaw)*7,player.position.y+3.2+pitch*3,player.position.z-Math.cos(yaw)*7);camera.lookAt(player.position.x,player.position.y+1.25,player.position.z);
 for(const c of crystals){c.rotation.y+=dt*1.2;c.position.y=1.25+Math.sin(t*2+c.position.x)*.18;if(c.visible&&c.position.distanceTo(player.position)<1.7){c.visible=false;score++;document.querySelector('#score').textContent=score;document.querySelector('#alive').textContent=bots.filter(b=>b.alive).length;toast()}}
 for(let i=0;i<drones.length;i++){const d=drones[i];d.position.y=2.2+Math.sin(t*1.6+i)*.35;d.rotation.y+=dt*.6}
