@@ -50,14 +50,14 @@ for(let i=0;i<18;i++){
 for(let i=0;i<65;i++){const x=(Math.random()-.5)*180,z=(Math.random()-.5)*180;if(Math.hypot(x,z)<12)continue;rock(x,z,.6+Math.random()*1.5)}
 // Casas de varios tamaños, con paredes sólidas, techos y puertas abiertas
 function house(x,z,w=10,d=8,color=0xb9a27a){
- const wall=box(x,1.8,z-d/2,w,3.6,.45,color);
+ box(x,1.8,z-d/2,w,3.6,.45,color);
  box(x-w/2,1.8,z,.45,3.6,d,color);box(x+w/2,1.8,z,.45,3.6,d,color);
- box(x,1.8,z+d/2,w,3.6,.45,color);
+ // Dos tramos dejan una puerta abierta en el frente
+ const side=(w-2.4)/2;
+ box(x-(w+2.4)/4,1.8,z+d/2,side,3.6,.45,color);
+ box(x+(w+2.4)/4,1.8,z+d/2,side,3.6,.45,color);
  box(x,3.85,z,w+1,.35,d+1,0x654b36);
  const roof=box(x,4.45,z,w+1.5,.35,d+1.5,0x8d4b2d);roof.rotation.z=.04;
- // La entrada queda al frente con una abertura central
- solidBoxes.pop();solidBoxes.push({x:x-w/2,z,hx:.23,hz:d/2});
- solidBoxes.push({x:x+w/2,z,hx:.23,hz:d/2});
 }
 house(-42,-34,12,9,0xbca27a);house(-25,-40,9,8,0xd0b88a);
 house(38,-38,13,10,0xb9aa83);house(53,-23,9,8,0xc6a77a);
