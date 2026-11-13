@@ -56,7 +56,7 @@ let score=0,started=false,yaw=0,pitch=.25,vy=0,onGround=true,shots=[],lastShot=0
 const keys={};addEventListener('keydown',e=>{keys[e.code]=true;if(e.code==='Space')e.preventDefault()});addEventListener('keyup',e=>keys[e.code]=false);
 document.querySelector('#play').onclick=()=>{started=true;document.querySelector('#start').style.display='none';renderer.domElement.requestPointerLock()};
 renderer.domElement.addEventListener('click',()=>{if(started&&document.pointerLockElement!==renderer.domElement)renderer.domElement.requestPointerLock();else if(started)fire()});
-addEventListener('mousemove',e=>{if(document.pointerLockElement===renderer.domElement){yaw-=e.movementX*.0022;pitch=Math.max(-.15,Math.min(.7,pitch+e.movementY*.0018))}});
+addEventListener('mousemove',e=>{if(document.pointerLockElement===renderer.domElement){yaw+=e.movementX*.0022;pitch=Math.max(-.15,Math.min(.7,pitch+e.movementY*.0018))}});
 function fire(){const now=performance.now();if(now-lastShot<450)return;lastShot=now;const dir=new THREE.Vector3(Math.sin(yaw),0,Math.cos(yaw)).normalize();const orb=new THREE.Mesh(new THREE.SphereGeometry(.18,12,12),new THREE.MeshBasicMaterial({color:0x73efff}));orb.position.copy(player.position).add(new THREE.Vector3(0,1.5,0)).addScaledVector(dir,1.1);scene.add(orb);shots.push({mesh:orb,dir,life:1.5})}
 function toast(){const t=document.querySelector('#toast');t.style.opacity=1;setTimeout(()=>t.style.opacity=0,850)}
 const clock=new THREE.Clock();
